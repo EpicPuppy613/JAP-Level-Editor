@@ -8,7 +8,7 @@
   </head>
   <body>
     <canvas id="main" height="700" width="1200"></canvas><br>
-    Version 0.1.3<br>
+    Version 0.2.0<br>
     Platform:
     <select id="platform">
         <option value="0">Normal</option>
@@ -24,6 +24,12 @@
     <button id="mode" onclick="ToggleMode()">Place</button>
     Grid Size:
     <input type="number" min="0" max="200" id="gridSize" value="0"></input><br>
+    Type:
+    <button id="type" onclick="ToggleType()">Platform</button>
+    Deco Color:
+    <input id="color" type="color"></input>
+    Deco Alpha:
+    <input type="number" min="0" max="255" value="255" id="alpha"></input><br>
     <button onclick="Export()">Export</button> 
     <button onclick="LoadLevel()">Import</button> 
     <button onclick="LoadBlank()">New</button>

@@ -12,6 +12,7 @@ G.posx = 0;
 G.posy = 0;
 G.select = 1;
 G.mode = 0;
+G.type = 1;
 G.gridSize = 0;
 G.spawn.x = 50;
 G.spawn.y = 50;
@@ -199,6 +200,7 @@ window.addEventListener('keydown', (event) => {
     if (event.code == "KeyS") G.down = true;
     if (event.key == "Shift") G.speed = 25;
     if (event.code == "KeyE") ToggleMode();
+    if (event.code == "KeyQ") ToggleType();
 });
 window.addEventListener('keyup', (event) => {
     if (event.code == "KeyA") G.left = false;
@@ -219,6 +221,16 @@ function ToggleMode() {
     else if (G.select == 0) {
         G.select = 1;
         document.getElementById("mode").innerHTML = "Place";
+    }
+}
+function ToggleType() {
+    if (G.type == 1) {
+        G.type = 0;
+        document.getElementById("type").innerHTML = "Deco";
+    }
+    else if (G.type == 0) {
+        G.type = 1;
+        document.getElementById("type").innerHTML = "Platform";
     }
 }
 function Click(x, y) {
@@ -245,7 +257,13 @@ function Click(x, y) {
             if (height == 0 || width == 0) {
                 return;
             }
-            G.objects.push(new Platform(xpos, ypos, width, height, document.getElementById("platform").value));
+            if (G.type == 1) {
+                G.objects.push(new Platform(xpos, ypos, width, height, document.getElementById("platform").value));
+            } else {
+                const color = document.getElementById("color").value + parseInt(document.getElementById("alpha").value).toString(16);
+                console.log(color);
+                G.deco.push(new Rect(xpos, ypos, width, height, color));
+            }
         } else {
             var xpos = Math.round((G.posx)/G.gridSize) * G.gridSize;
             var ypos = Math.round((G.posy)/G.gridSize) * G.gridSize;
@@ -262,7 +280,13 @@ function Click(x, y) {
             if (height == 0 || width == 0) {
                 return;
             }
-            G.objects.push(new Platform(xpos, ypos, width, height, document.getElementById("platform").value));
+            if (G.type == 1) {
+                G.objects.push(new Platform(xpos, ypos, width, height, document.getElementById("platform").value));
+            } else {
+                const color = document.getElementById("color").value + parseInt(document.getElementById("alpha").value).toString(16);
+                console.log(color);
+                G.deco.push(new Rect(xpos, ypos, width, height, color));
+            }
         }
     }
     if (G.select == 0) {
@@ -273,6 +297,18 @@ function Click(x, y) {
                 const platform = G.objects[i];
                 if (platform.x < x - G.offset.x && platform.x + platform.width > x - G.offset.x && platform.y < y - G.offset.y && platform.y + platform.height > y - G.offset.y) {
                     G.objects.splice(i, 1);
+                    success = true;
+                    break
+                }
+            }
+        }
+        var success = true;
+        while (success) {
+            success = false;
+            for (let i = 0; i < G.deco.length; i++) {
+                const platform = G.deco[i];
+                if (platform.x < x - G.offset.x && platform.x + platform.width > x - G.offset.x && platform.y < y - G.offset.y && platform.y + platform.height > y - G.offset.y) {
+                    G.deco.splice(i, 1);
                     success = true;
                     break
                 }
