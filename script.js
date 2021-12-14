@@ -198,6 +198,7 @@ window.addEventListener('keydown', (event) => {
     if (event.code == "KeyW") G.up = true;
     if (event.code == "KeyS") G.down = true;
     if (event.key == "Shift") G.speed = 25;
+    if (event.code == "KeyE") ToggleMode();
 });
 window.addEventListener('keyup', (event) => {
     if (event.code == "KeyA") G.left = false;
