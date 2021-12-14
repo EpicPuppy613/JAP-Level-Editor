@@ -244,7 +244,7 @@ function Click(x, y) {
             success = false;
             for (let i = 0; i < G.objects.length; i++) {
                 const platform = G.objects[i];
-                if (platform.x < x && platform.x + platform.width > x && platform.y < y && platform.y + platform.height > y) {
+                if (platform.x < x - G.offset.x && platform.x + platform.width > x - G.offset.x && platform.y < y - G.offset.y && platform.y + platform.height > y - G.offset.y) {
                     G.objects.splice(i, 1);
                     success = true;
                     break
