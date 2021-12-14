@@ -228,6 +228,9 @@ function Click(x, y) {
         G.posy = y - G.offset.y;
     } else if (G.select == 2) {
         G.select = 1;
+        if (G.posx == x || G.posy == y) {
+            return;
+        }
         if (G.gridSize < 10) {
             G.objects.push(new Platform(G.posx, G.posy, x - G.posx - G.offset.x, y - G.posy - G.offset.y, document.getElementById("platform").value));
         } else {
