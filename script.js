@@ -228,16 +228,39 @@ function Click(x, y) {
         G.posy = y - G.offset.y;
     } else if (G.select == 2) {
         G.select = 1;
-        if (G.posx == x || G.posy == y) {
-            return;
-        }
         if (G.gridSize < 10) {
-            G.objects.push(new Platform(G.posx, G.posy, x - G.posx - G.offset.x, y - G.posy - G.offset.y, document.getElementById("platform").value));
+            var xpos = G.posx;
+            var ypos = G.posy;
+            var width = x - G.posx;
+            var height = y - G.posy;
+            if (width < 0) {
+                xpos += width;
+                width = Math.abs(width);
+            }
+            if (height < 0) {
+                ypos += height;
+                height = Math.abs(height);
+            }
+            if (height == 0 || width == 0) {
+                return;
+            }
+            G.objects.push(new Platform(xpos, ypos, width, height, document.getElementById("platform").value));
         } else {
-            xpos = Math.round((G.posx)/G.gridSize) * G.gridSize;
-            ypos = Math.round((G.posy)/G.gridSize) * G.gridSize;
-            width = Math.round((x - G.posx - G.offset.x)/G.gridSize) * G.gridSize;
-            height = Math.round((y - G.posy - G.offset.y)/G.gridSize) * G.gridSize;
+            var xpos = Math.round((G.posx)/G.gridSize) * G.gridSize;
+            var ypos = Math.round((G.posy)/G.gridSize) * G.gridSize;
+            var width = Math.round((x - G.posx - G.offset.x)/G.gridSize) * G.gridSize;
+            var height = Math.round((y - G.posy - G.offset.y)/G.gridSize) * G.gridSize;
+            if (width < 0) {
+                xpos += width;
+                width = Math.abs(width);
+            }
+            if (height < 0) {
+                ypos += height;
+                height = Math.abs(height);
+            }
+            if (height == 0 || width == 0) {
+                return;
+            }
             G.objects.push(new Platform(xpos, ypos, width, height, document.getElementById("platform").value));
         }
     }
