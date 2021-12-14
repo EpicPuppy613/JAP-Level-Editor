@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Just Another Platformer</title>
+    <link href="style.css" rel="stylesheet" type="text/css"/>
+  </head>
+  <body>
+    <canvas id="main" height="700" width="1200"></canvas><br><br>
+    Platform:
+    <select id="platform">
+        <option value="0">Normal</option>
+        <option value="1">Jump</option>
+        <option value="2">Bounce</option>
+        <option value="3">Lava</option>
+        <option value="5">2 Jump</option>
+        <option value="6">3 Jump</option>
+        <option value="7">Bounce & Jump</option>
+        <option value="9">Goal</option>
+    </select>
+    Mode:
+    <button id="mode" onclick="ToggleMode()">Place</button>
+    Grid Size:
+    <input type="number" min="0" max="200" id="gridSize" value="0"></input><br>
+    <button onclick="Export()">Export</button> <button onclick="LoadLevel()">Import</button> <button onclick="LoadBlank()">New</button><br>
+    <textarea cols=60 rows=30 id="io"></textarea>
+    <script src="script.js"></script>
+  </body>
+</html>

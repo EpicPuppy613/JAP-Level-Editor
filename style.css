@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+html {
+    background-color: black;
+    text-align: center;
+    color: white;
+    font-family: monospace;
+}
+canvas {
+    border: 2px solid gray;
+    margin: auto;
+}
+select {
+    font-family: monospace;
+}
