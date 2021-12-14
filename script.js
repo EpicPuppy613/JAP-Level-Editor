@@ -139,6 +139,10 @@ G.infoTexts = [
 function LoadBlank() {
     LoadLevel(G.blank);
 }
+function CenterScreen() {
+    G.offset.x = 0;
+    G.offset.y = 0;
+}
 function Draw() {
     if (G.right) G.offset.x -= G.speed;
     if (G.left) G.offset.x += G.speed;
