@@ -3,6 +3,7 @@ G = {};
 G.ctx = canvas.getContext("2d");
 G.ctx.fillStyle = "white";
 G.ctx.fillRect(0, 0, 800, 600);
+G.blankTimer = 0;
 G.objects = [];
 G.deco = [];
 G.speed = 5;
@@ -138,7 +139,13 @@ G.infoTexts = [
     "Select Pos 2"
 ]
 function LoadBlank() {
-    LoadLevel(G.blank);
+    if (G.blankTimer > 0) {
+        G.blankTimer = 0;
+        LoadLevel(G.blank);
+    } else {
+        G.blankTimer = 200;
+        document.getElementById("blank").innerHTML = "Confirm?";
+    }
 }
 function CenterScreen() {
     G.offset.x = 0;
@@ -211,6 +218,10 @@ window.addEventListener('keyup', (event) => {
 });
 function Main() {
     G.gridSize = parseInt(document.getElementById("gridSize").value);
+    G.blankTimer--;
+    if (G.blankTimer <= 0) {
+        document.getElementById("blank").innerHTML = "New";
+    }
     Draw();
 }
 function ToggleMode() {
