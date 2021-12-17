@@ -580,8 +580,8 @@ function Export() {
     const output = {}
     output.goal = "flag";
     output.character = {};
-    output.character.width = G.spawn.width;
-    output.character.height = G.spawn.height;
+    output.character.width = G.character.width;
+    output.character.height = G.character.height;
     output.spawn = {};
     output.spawn.x = G.spawn.x;
     output.spawn.y = G.spawn.y;
