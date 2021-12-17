@@ -8,22 +8,28 @@
   </head>
   <body>
     <canvas id="main" height="700" width="1200"></canvas><br>
-    Version 0.2.1<br>
+    Version 0.3.0<br>
     Platform:
     <select id="platform">
         <option value="0">Normal</option>
         <option value="1">Jump</option>
         <option value="2">Bounce</option>
         <option value="3">Lava</option>
+        <option value="4">Jump Pad</option>
         <option value="5">2 Jump</option>
         <option value="6">3 Jump</option>
-        <option value="7">Bounce & Jump</option>
+        <option value="7">Bounce Jump</option>
+        <option value="8">Boost</option>
         <option value="9">Goal</option>
     </select>
+    Power:
+    <input type="number" id="power" value="6" min="2" max="50"></input>
+    Boost:
+    <input type="number" id="boost" value="0.25" min="0" max="5" step="0.1"></input>
     Mode:
-    <button id="mode" onclick="ToggleMode()">Place</button>
+    <button id="mode" onclick="ToggleMode()">Place</button><br>
     Grid Size:
-    <input type="number" min="0" max="200" id="gridSize" value="0"></input><br>
+    <input type="number" min="0" max="200" id="gridSize" value="0"></input>
     Type:
     <button id="type" onclick="ToggleType()">Platform</button>
     Deco Color:

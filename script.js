@@ -59,12 +59,14 @@ G.blank = JSON.parse(`{
     ]
 }`);
 class Platform {
-    constructor(x, y, width, height, type) {
+    constructor(x, y, width, height, type, power, boost) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.type = type;
+        this.power = power;
+        this.boost = boost;
     }
 }
 class Rect {
@@ -100,7 +102,7 @@ function LoadLevel(leveldata) {
     G.spawn.x = G.leveldata.spawn.x;
     G.spawn.y = G.leveldata.spawn.y;
     for (const object of G.leveldata.objects) {
-        G.objects.push(new Platform(object.x, object.y, object.width, object.height, object.type));
+        G.objects.push(new Platform(object.x, object.y, object.width, object.height, object.type, object.power, object.boost));
     }
     for (const deco of G.leveldata.decorations) {
         G.deco.push(new Rect(deco.x, deco.y, deco.width, deco.height, deco.color));
@@ -119,11 +121,11 @@ G.colors = [
     "#666644", //1: Jump
     "#44aa44", //2: Bounce
     "#ee2222", //3: Lava
-    "#eeee44", //4: Bounce Pad
+    "#4444ee", //4: Jump Pad
     "#aaaa44", //5: Double Jump
     "#eeee44", //6: Triple Jump
     "#88aa44", //7: Jump Bounce Pad
-    "", //8: None
+    "#ee44ee", //8: Boost
     "#44ff44" //9: Goal
 ];
 G.difficultyColors = [
@@ -177,6 +179,20 @@ function Draw() {
     G.ctx.fillRect(G.spawn.x + G.offset.x, G.spawn.y + G.offset.y, G.spawn.width, G.spawn.height);
     for (const platform of G.objects) {
         G.ctx.fillStyle = G.colors[platform.type];
+        if (platform.type == 4) {
+            gval = parseInt(Math.min(platform.power * 12, 255)).toString(16);
+            if (gval.length == 1) gval = "0" + gval;
+            bval = parseInt(Math.min(platform.power * 20, 255)).toString(16);
+            if (bval.length == 1) bval = "0" + bval;
+            G.ctx.fillStyle = "#33" + gval + bval;
+        }
+        if (platform.type == 8) {
+            rval = parseInt(Math.min(platform.boost * 300, 255)).toString(16);
+            if (rval.length == 1) rval = "0" + rval;
+            bval = parseInt(Math.min((platform.power - 2) * 30, 255)).toString(16);
+            if (bval.length == 1) bval = "0" + bval;
+            G.ctx.fillStyle = `#${rval}33${bval}`;
+        }
         G.ctx.fillRect(platform.x + G.offset.x, platform.y + G.offset.y, platform.width, platform.height);
     }
     for (const deco of G.deco) {
@@ -269,17 +285,17 @@ function Click(x, y) {
                 return;
             }
             if (G.type == 1) {
-                G.objects.push(new Platform(xpos, ypos, width, height, document.getElementById("platform").value));
+                G.objects.push(new Platform(xpos, ypos, width, height, document.getElementById("platform").value, parseFloat(document.getElementById("power").value), parseFloat(document.getElementById("boost").value)));
             } else {
                 const color = document.getElementById("color").value + parseInt(document.getElementById("alpha").value).toString(16);
                 console.log(color);
                 G.deco.push(new Rect(xpos, ypos, width, height, color));
             }
         } else {
-            var xpos = Math.round((G.posx)/G.gridSize) * G.gridSize;
-            var ypos = Math.round((G.posy)/G.gridSize) * G.gridSize;
-            var width = Math.round((x - G.posx - G.offset.x)/G.gridSize) * G.gridSize;
-            var height = Math.round((y - G.posy - G.offset.y)/G.gridSize) * G.gridSize;
+            var xpos = Math.round((G.posx) / G.gridSize) * G.gridSize;
+            var ypos = Math.round((G.posy) / G.gridSize) * G.gridSize;
+            var width = Math.round((x - G.posx - G.offset.x) / G.gridSize) * G.gridSize;
+            var height = Math.round((y - G.posy - G.offset.y) / G.gridSize) * G.gridSize;
             if (width < 0) {
                 xpos += width;
                 width = Math.abs(width);
@@ -292,7 +308,7 @@ function Click(x, y) {
                 return;
             }
             if (G.type == 1) {
-                G.objects.push(new Platform(xpos, ypos, width, height, document.getElementById("platform").value));
+                G.objects.push(new Platform(xpos, ypos, width, height, parseInt(document.getElementById("platform").value), parseFloat(document.getElementById("power").value), parseFloat(document.getElementById("boost").value)));
             } else {
                 const color = document.getElementById("color").value + parseInt(document.getElementById("alpha").value).toString(16);
                 console.log(color);
@@ -347,9 +363,9 @@ function Export() {
     output.texts = G.texts;
     document.getElementById("io").value = JSON.stringify(output);
 }
-canvas.addEventListener('mousedown', function(e) {
+canvas.addEventListener('mousedown', function (e) {
     getCursorPosition(canvas, e);
 })
-setInterval(function(){
+setInterval(function () {
     Main();
 }, 25);
