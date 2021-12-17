@@ -5,8 +5,17 @@ G.ctx.fillStyle = "white";
 G.ctx.fillRect(0, 0, 800, 600);
 G.blankTimer = 0;
 G.objects = [];
+G.testing = false;
+G.keys = {};
+G.keys.right = false;
+G.keys.left = false;
+G.jumps = 0;
 G.deco = [];
 G.speed = 5;
+G.terminal = {};
+G.terminal.x = 6;
+G.terminal.y = 25;
+G.terminal.vx = 0.4;
 G.texts = [];
 G.spawn = {};
 G.posx = 0;
@@ -20,8 +29,18 @@ G.spawn.y = 50;
 G.offset = {};
 G.offset.x = 0;
 G.offset.y = 0;
-G.spawn.width = 20;
-G.spawn.height = 20;
+G.character = {};
+G.character.x = 0;
+G.character.y = 0;
+G.character.width = 20;
+G.character.height = 20;
+G.character.vx = 0;
+G.character.vy = 0;
+G.character.collider = {};
+G.character.collider.x = 0;
+G.character.collider.y = 0;
+G.character.collider.width = 20;
+G.character.collider.height = 20;
 G.left = false;
 G.up = false;
 G.right = false;
@@ -88,6 +107,88 @@ class GameText {
         this.align = align;
     }
 }
+function CollisionDirection(root, object) {
+    //Get distances from each side
+    var root_bottom = root.y + root.height;
+    var object_bottom = object.y + object.height;
+    var root_right = root.x + root.width;
+    var object_right = object.x + object.width;
+
+    var b_collision = object_bottom - root.y;
+    var t_collision = root_bottom - object.y;
+    var l_collision = root_right - object.x;
+    var r_collision = object_right - root.x;
+
+    //Return closest side
+    if (
+        t_collision == b_collision ||
+        t_collision == l_collision ||
+        t_collision == r_collision ||
+        b_collision == l_collision ||
+        b_collision == r_collision ||
+        l_collision == r_collision
+    ) {
+        return;
+    }
+    if (t_collision < b_collision && t_collision < l_collision && t_collision < r_collision) {
+        return "t";
+    }
+    if (b_collision < t_collision && b_collision < l_collision && b_collision < r_collision) {
+        return "b";
+    }
+    if (l_collision < r_collision && l_collision < t_collision && l_collision < b_collision) {
+        return "l";
+    }
+    if (r_collision < l_collision && r_collision < t_collision && r_collision < b_collision) {
+        return "r";
+    }
+    return;
+}
+function IsCollision(root, object) {
+    //Detect if objects are overlapping
+    var collision = false;
+    if (
+        root.x > object.x &&
+        root.x < object.x + object.width &&
+        root.y > object.y &&
+        root.y < object.y + object.height
+    ) {
+        collision = true;
+    } if (
+        root.x + root.width > object.x &&
+        root.x + root.width < object.x + object.width &&
+        root.y > object.y &&
+        root.y < object.y + object.height
+    ) {
+        collision = true;
+    } if (
+        root.x > object.x &&
+        root.x < object.x + object.width &&
+        root.y + root.height > object.y &&
+        root.y + root.height < object.y + object.height
+    ) {
+        collision = true;
+    } if (
+        root.x + root.width > object.x &&
+        root.x + root.width < object.x + object.width &&
+        root.y + root.height > object.y &&
+        root.y + root.height < object.y + object.height
+    ) {
+        collision = true;
+    }
+    return collision;
+}
+function LevelCollision(root) {
+    //Run collision with every object in level
+    var collisions = [];
+    for (const object of G.objects) {
+        var collision = IsCollision(root, object);
+        if (collision) {
+            collisions.push(object);
+        }
+    }
+    return collisions;
+}
 function LoadLevel(leveldata) {
     G.objects = [];
     G.texts = [];
@@ -97,10 +198,14 @@ function LoadLevel(leveldata) {
     } else {
         G.leveldata = JSON.parse(document.getElementById("io").value);
     }
-    G.spawn.width = G.leveldata.character.width;
-    G.spawn.height = G.leveldata.character.height;
+    G.character.width = G.leveldata.character.width;
+    G.character.height = G.leveldata.character.height;
     G.spawn.x = G.leveldata.spawn.x;
     G.spawn.y = G.leveldata.spawn.y;
+    G.character.x = G.spawn.x;
+    G.character.y = G.spawn.y;
+    G.character.collider.width = G.character.width;
+    G.character.collider.height = G.character.height;
     for (const object of G.leveldata.objects) {
         G.objects.push(new Platform(object.x, object.y, object.width, object.height, object.type, object.power, object.boost));
     }
@@ -176,7 +281,7 @@ function Draw() {
         G.ctx.stroke();
     }
     G.ctx.fillStyle = "gold";
-    G.ctx.fillRect(G.spawn.x + G.offset.x, G.spawn.y + G.offset.y, G.spawn.width, G.spawn.height);
+    G.ctx.fillRect(G.character.x + G.offset.x, G.character.y + G.offset.y, G.character.width, G.character.height);
     for (const platform of G.objects) {
         G.ctx.fillStyle = G.colors[platform.type];
         if (platform.type == 4) {
@@ -187,9 +292,9 @@ function Draw() {
             G.ctx.fillStyle = "#33" + gval + bval;
         }
         if (platform.type == 8) {
-            rval = parseInt(Math.min((platform.boost - 0.2) * 300, 255)).toString(16);
+            rval = parseInt(Math.min((platform.boost - 0.1) * 300, 255)).toString(16);
             if (rval.length == 1) rval = "0" + rval;
-            bval = parseInt(Math.min((platform.power - 2) * 25, 255)).toString(16);
+            bval = parseInt(Math.min((platform.power - 1) * 18, 255)).toString(16);
             if (bval.length == 1) bval = "0" + bval;
             G.ctx.fillStyle = `#${rval}33${bval}`;
         }
@@ -217,13 +322,29 @@ function Draw() {
     G.ctx.textBaseline = "alphabetic"
 }
 window.addEventListener('keydown', (event) => {
-    if (event.code == "KeyA") G.left = true;
-    if (event.code == "KeyD") G.right = true;
-    if (event.code == "KeyW") G.up = true;
-    if (event.code == "KeyS") G.down = true;
-    if (event.key == "Shift") G.speed = 25;
+    if (!G.testing) {
+        if (event.code == "KeyA") G.left = true;
+        if (event.code == "KeyD") G.right = true;
+        if (event.code == "KeyW") G.up = true;
+        if (event.code == "KeyS") G.down = true;
+        if (event.key == "Shift") G.speed = 25;
+    }
     if (event.code == "KeyE") ToggleMode();
     if (event.code == "KeyQ") ToggleType();
+    if (event.code == "KeyC") CenterScreen();
+    if (event.code == "KeyN") LoadBlank();
+    if (event.code == "KeyT") ToggleTest();
+    if (G.testing) {
+        if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(event.code) > -1 && G.testing) {
+            event.preventDefault();
+        }
+        if (event.code == "ArrowRight") G.keys.right = true;
+        if (event.code == "ArrowLeft") G.keys.left = true;
+        if (event.code == "Space" && G.jumps > 0) {
+            G.character.vy = -6;
+            G.jumps -= 1;
+        }
+    }
 });
 window.addEventListener('keyup', (event) => {
     if (event.code == "KeyA") G.left = false;
@@ -231,12 +352,100 @@ window.addEventListener('keyup', (event) => {
     if (event.code == "KeyW") G.up = false;
     if (event.code == "KeyS") G.down = false;
     if (event.key == "Shift") G.speed = 5;
+    if (G.testing) {
+        if (event.code == "ArrowRight") G.keys.right = false;
+        if (event.code == "ArrowLeft") G.keys.left = false;
+    }
 });
+function Movement() {
+    //Change character velocity
+    if (G.keys.left && G.character.vx > -G.terminal.x) {
+        G.character.vx -= G.terminal.vx;
+    } if (G.keys.right && G.character.vx < G.terminal.x) {
+        G.character.vx += G.terminal.vx;
+    }
+    if (G.character.vx < 0) {
+        G.character.vx = Math.min(G.character.vx + 0.2, 0);
+    } if (G.character.vx > 0) {
+        G.character.vx = Math.max(G.character.vx - 0.2, 0);
+    }
+}
 function Main() {
     G.gridSize = parseInt(document.getElementById("gridSize").value);
     G.blankTimer--;
     if (G.blankTimer <= 0) {
         document.getElementById("blank").innerHTML = "New";
+    }
+    if (G.testing) {
+        //Create character collider where it would be next frame
+        G.character.collider.x = G.character.x + G.character.vx;
+        G.character.collider.y = G.character.y + G.character.vy;
+        Movement();
+        //Collide with objects
+        var collisions = LevelCollision(G.character.collider)
+        if (collisions.length != 0) {
+            var collide = true;
+            //Loop through all collisions
+            for (const collision of collisions) {
+                const direction = CollisionDirection(G.character.collider, collision);
+                if (direction == "t") {
+                    G.jumps = 0;
+                    G.terminal.x = 6;
+                    G.terminal.vx = 0.4;
+                }
+                //Do stuff depending on object type
+                if (collision.type == 3) {
+                    G.character.x = G.leveldata.spawn.x;
+                    G.character.y = G.leveldata.spawn.y;
+                    G.character.vx = 0;
+                    G.character.vy = 0;
+                    collide = false;
+                } if (collision.type == 1 && direction == "t") {
+                    G.jumps = 1;
+                } if (collision.type == 5 && direction == "t") {
+                    G.jumps = 2;
+                } if (collision.type == 2 && G.character.vy > 4 && direction == "t") {
+                    G.character.vy = -G.character.vy * 0.65;
+                    collide = false;
+                } if (collision.type == 6 && direction == "t") {
+                    G.jumps = 3;
+                } if (collision.type == 4 && direction == "t") {
+                    G.character.vy = -collision.power;
+                    collide = false;
+                } if (collision.type == 8 && direction == "t") {
+                    G.terminal.x = collision.power;
+                    G.terminal.vx = collision.boost;
+                } if (collision.type == 9) {
+                    //Game finished
+                    ToggleTest();
+                } if (collision.type == 7 && G.character.vy > 4 && direction == "t") {
+                    G.character.vy = -G.character.vy * 0.65;
+                    G.jumps = 1;
+                    collide = false;
+                }
+                if (collide) {
+                    if (direction == "t") {
+                        G.character.y = collision.y - G.character.height;
+                        G.character.vy = 0;
+                    } else if (direction == "b") {
+                        G.character.y = collision.y + collision.height;
+                        G.character.vy = 0;
+                    } else if (direction == "l") {
+                        G.character.x = collision.x - G.character.width;
+                        G.character.vx = 0;
+                    } else if (direction == "r") {
+                        G.character.x = collision.x + collision.width;
+                        G.character.vx = 0;
+                    }
+                }
+            }
+        }
+        G.character.x += G.character.vx;
+        G.character.y += G.character.vy;
+        G.character.vy += 0.25;
+        G.character.vy = Math.min(G.character.vy, G.terminal.y);
+        G.offset.x = Math.round(-G.character.x + 1200 / 2 - G.character.width / 2);
+        G.offset.y = Math.round(-G.character.y + 700 / 2 - G.character.height / 2);
     }
     Draw();
 }
@@ -343,6 +552,23 @@ function Click(x, y) {
         }
     }
 }
+function ToggleTest() {
+    if (G.testing) {
+        G.testing = false;
+        G.character.x = G.spawn.x;
+        G.character.y = G.spawn.y;
+        G.character.vx = 0;
+        G.character.vy = 0;
+        document.getElementById("test").innerHTML = "Test";
+    } else {
+        G.testing = true;
+        G.character.x = G.spawn.x;
+        G.character.y = G.spawn.y;
+        G.character.vx = 0;
+        G.character.vy = 0;
+        document.getElementById("test").innerHTML = "Edit";
+    }
+}
 function getCursorPosition(canvas, event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -368,4 +594,4 @@ canvas.addEventListener('mousedown', function (e) {
 })
 setInterval(function () {
     Main();
-}, 25);
+}, 20);
