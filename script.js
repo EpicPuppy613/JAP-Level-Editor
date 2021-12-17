@@ -187,9 +187,9 @@ function Draw() {
             G.ctx.fillStyle = "#33" + gval + bval;
         }
         if (platform.type == 8) {
-            rval = parseInt(Math.min(platform.boost * 300, 255)).toString(16);
+            rval = parseInt(Math.min((platform.boost - 0.2) * 300, 255)).toString(16);
             if (rval.length == 1) rval = "0" + rval;
-            bval = parseInt(Math.min((platform.power - 2) * 30, 255)).toString(16);
+            bval = parseInt(Math.min((platform.power - 2) * 25, 255)).toString(16);
             if (bval.length == 1) bval = "0" + bval;
             G.ctx.fillStyle = `#${rval}33${bval}`;
         }
