@@ -107,7 +107,8 @@ class GameText {
         this.align = align;
     }
 }
-function CollisionDirection(root, object) {
+function CollisionDirection(object) {
+    const root = G.character;
     //Get distances from each side
     var root_bottom = root.y + root.height;
     var object_bottom = object.y + object.height;
@@ -130,16 +131,16 @@ function CollisionDirection(root, object) {
     ) {
         return;
     }
-    if (t_collision < b_collision && t_collision < l_collision && t_collision < r_collision) {
+    if (t_collision < b_collision && t_collision < l_collision && t_collision < r_collision && root.vy > 0) {
         return "t";
     }
-    if (b_collision < t_collision && b_collision < l_collision && b_collision < r_collision) {
+    if (b_collision < t_collision && b_collision < l_collision && b_collision < r_collision && root.vy < 0) {
         return "b";
     }
-    if (l_collision < r_collision && l_collision < t_collision && l_collision < b_collision) {
+    if (l_collision < r_collision && l_collision < t_collision && l_collision < b_collision && root.vx < 0) {
         return "l";
     }
-    if (r_collision < l_collision && r_collision < t_collision && r_collision < b_collision) {
+    if (r_collision < l_collision && r_collision < t_collision && r_collision < b_collision && root.vy > 0) {
         return "r";
     }
     return;
@@ -387,7 +388,7 @@ function Main() {
             var collide = true;
             //Loop through all collisions
             for (const collision of collisions) {
-                const direction = CollisionDirection(G.character.collider, collision);
+                const direction = CollisionDirection(collision);
                 if (direction == "t") {
                     G.jumps = 0;
                     G.terminal.x = 6;
