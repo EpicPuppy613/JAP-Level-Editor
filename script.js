@@ -553,6 +553,8 @@ function Click(x, y) {
     }
 }
 function ToggleTest() {
+    G.terminal.x = 6;
+    G.terminal.vx = 0.4;
     if (G.testing) {
         G.testing = false;
         G.character.x = G.spawn.x;
