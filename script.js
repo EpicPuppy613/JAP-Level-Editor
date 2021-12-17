@@ -555,19 +555,17 @@ function Click(x, y) {
 function ToggleTest() {
     G.terminal.x = 6;
     G.terminal.vx = 0.4;
+    G.character.vx = 0;
+    G.character.vy = 0;
     if (G.testing) {
         G.testing = false;
         G.character.x = G.spawn.x;
         G.character.y = G.spawn.y;
-        G.character.vx = 0;
-        G.character.vy = 0;
         document.getElementById("test").innerHTML = "Test";
     } else {
         G.testing = true;
         G.character.x = G.spawn.x;
         G.character.y = G.spawn.y;
-        G.character.vx = 0;
-        G.character.vy = 0;
         document.getElementById("test").innerHTML = "Edit";
     }
 }
